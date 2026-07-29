@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy — Pineapple</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="favicon.ico" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            color: #23252b;
+            background: #ffffff;
+            line-height: 1.65;
+            padding: 48px 24px 64px;
+        }
+        .wrap { max-width: 680px; margin: 0 auto; }
+        a { color: #d6a626; text-decoration: none; font-weight: 600; }
+        a:hover { text-decoration: underline; }
+        .back { font-size: 14px; display: inline-block; margin-bottom: 34px; color: #5c626e; font-weight: 600; }
+        h1 { font-size: 32px; letter-spacing: -0.02em; margin-bottom: 8px; }
+        .lead { color: #5c626e; margin-bottom: 30px; font-size: 16px; }
+        h2 { font-size: 17px; margin: 26px 0 8px; }
+        p, li { font-size: 14.5px; color: #3d414a; }
+        ul { padding-left: 20px; margin: 6px 0; }
+        .legal {
+            margin-top: 44px;
+            padding-top: 18px;
+            border-top: 1px solid #ececef;
+            font-size: 11.5px;
+            color: #8b909b;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a class="back" href="/">← Pineapple</a>
+        <h1>Privacy</h1>
+        <p class="lead">The short version: Pineapple keeps to itself. No accounts, no telemetry,
+           no analytics — nothing about how you use it ever leaves your machine. The only thing it
+           does over the network is check this site for a newer version and download it if you
+           say yes.</p>
+
+        <h2>What Pineapple is</h2>
+        <p>Pineapple is a small Windows tool, given away free of charge. There is no account to
+           create and nothing to sign up for, and the app collects nothing about you — which is why
+           the list below is so short. The only way to get in touch is by email:
+           <a class="mail mail-text" data-u="support" data-h="getpineapple.app">support [at] getpineapple [dot] app</a>.</p>
+
+        <h2>What is processed, and why</h2>
+        <ul>
+            <li><b>This website:</b> a plain static page — no cookies, no analytics, no third-party
+                scripts. It is hosted on GitHub Pages (GitHub, Inc.) in the United States, and
+                reaches you through the content delivery network GitHub uses for Pages, run by
+                Fastly, Inc. As any web host does, both see standard connection data such as your
+                IP address, which is what they need to send you the page. Data leaving the EEA that
+                way is covered by GitHub's certification under the EU-U.S. Data Privacy Framework
+                and by its standard contractual clauses.</li>
+            <li><b>The app on your machine:</b> your settings are saved under your own Windows user
+                account, in the registry under <code>HKEY_CURRENT_USER</code>. Pineapple also creates
+                a logon task under that same account, pointing at the program file, so Pineapple
+                starts with Windows — switch <b>Start with Windows</b> off in <b>About</b>, and the
+                task is removed. Both stay on your machine: nothing is collected, profiled or sent
+                anywhere.</li>
+            <li><b>Checking for updates:</b> the only time Pineapple goes online. It fetches a small
+                version file from this site, and the download package too if you choose to install the
+                update. Those are ordinary web requests, so the host sees your IP address when they
+                happen — the same as when you open this page yourself — and nothing else is sent.
+                Switch <b>Check for updates automatically</b> off in <b>About</b>, and Pineapple
+                stops going online on its own; after that it only looks when you press
+                <b>Check for updates</b> yourself.</li>
+            <li><b>Email:</b> if you write, your address and whatever you put in the message
+                arrive in a mailbox at a mail provider and are used for nothing but replying to you —
+                the legitimate interest of answering someone who got in touch. Messages are kept only
+                as long as answering them takes, then deleted. No lists, no newsletters and nothing
+                passed on to anyone else.</li>
+        </ul>
+
+        <h2>Your rights</h2>
+        <p>Pineapple itself collects and keeps nothing about you, so in practice there is nothing to
+           access, correct or erase — apart from an email you may have sent, which you can ask to
+           have deleted at any time. The connection data a web host records stays with GitHub and
+           Fastly. If data-protection law where you live (the GDPR or similar) gives you further
+           rights, one email to <a class="mail mail-text" data-u="support" data-h="getpineapple.app">support [at] getpineapple [dot] app</a>
+           is enough to exercise them, and you can of course lodge a complaint with your local
+           data-protection authority.</p>
+
+        <p class="legal">
+            Last updated 2 August 2026 · Pineapple is freeware — see the
+            <a href="license.html">License</a> for the terms · © 2026
+        </p>
+    </div>
+    <script>
+        (function () {
+            function addr(el) { return el.dataset.u + "@" + el.dataset.h; }
+            document.querySelectorAll("a.mail").forEach(function (a) {
+                a.setAttribute("href", "mailto:" + addr(a));
+            });
+            document.querySelectorAll(".mail-text").forEach(function (el) {
+                el.textContent = addr(el);
+            });
+        })();
+    </script>
+</body>
+</html>
