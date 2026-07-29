@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pineapple — stay awake, look active</title>
+    <meta name="description" content="A tiny Windows tray utility that keeps your machine awake, looks active, and switches Windows Power Mode." />
+    <meta property="og:title" content="Pineapple &mdash; stay awake, look active" />
+    <meta property="og:description" content="A tiny Windows tray utility that keeps your machine awake, looks active, and switches Windows Power Mode." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://getpineapple.app/" />
+    <meta property="og:image" content="https://getpineapple.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Pineapple &mdash; stay awake, look active" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://getpineapple.app/" />
+    <link rel="icon" href="favicon.ico" />
+    <style>
+        :root {
+            --ink: #23252b;
+            --ink-soft: #5c626e;
+            --line: #ececef;
+            --bg: #ffffff;
+            --bg-soft: #faf9f6;
+            --gold: #f5c542;
+            --gold-deep: #d6a626;
+            --green: #2e9e67;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            color: var(--ink);
+            background: var(--bg);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: clip;
+        }
+
+        .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+        img { max-width: 100%; height: auto; }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 22px 0;
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; }
+        .brand img { width: 34px; height: 34px; }
+
+        .nav-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            background: var(--ink);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform .15s ease, background .15s ease;
+        }
+        .nav-cta:hover { background: #000; transform: translateY(-1px); }
+
+        /* Hero */
+        .hero {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 48px;
+            align-items: center;
+            padding: 64px 0 72px;
+        }
+
+        .hero h1 {
+            font-size: 52px;
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+        .hero h1 .accent {
+            background: linear-gradient(120deg, var(--gold-deep), var(--gold));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p.lead { font-size: 19px; color: var(--ink-soft); margin-bottom: 32px; max-width: 30em; }
+
+        .actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+
+        .download {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            background: var(--gold);
+            color: var(--ink);
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            box-shadow: 0 5px 14px rgba(245, 197, 66, .32);
+            transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+        }
+        .download:hover { background: #ffd35c; transform: translateY(-2px); box-shadow: 0 7px 16px rgba(245, 197, 66, .40); }
+        .download svg { width: 20px; height: 20px; }
+
+        .meta { font-size: 13px; color: var(--ink-soft); }
+        .meta b { color: var(--ink); font-weight: 600; }
+        .meta a { color: var(--gold-deep); font-weight: 600; text-decoration: none; }
+        .meta a:hover { text-decoration: underline; }
+
+        .hero-art {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hero-art .disc {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 42%, #fff6da 0%, var(--bg-soft) 60%, var(--bg) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 0 1px var(--line);
+        }
+        .hero-art img {
+            width: 200px;
+            height: 200px;
+            filter: drop-shadow(0 16px 30px rgba(35, 37, 43, .18));
+        }
+
+        /* Features */
+        .features { padding: 12px 0 80px; }
+        .features h2 {
+            text-align: center;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--ink-soft);
+            margin-bottom: 40px;
+        }
+
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+        .card {
+            background: var(--bg-soft);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 28px 24px;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(35, 37, 43, .07); }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; margin-bottom: 16px; }
+        .dot.g { background: var(--green); }
+        .dot.y { background: var(--gold); }
+        .dot.p { background: linear-gradient(135deg, var(--green) 50%, var(--gold) 50%); }
+        /* Hollow — a frame you pour settings into; also echoes the deco rings. */
+        .dot.o { background: transparent; box-shadow: inset 0 0 0 2px var(--gold-deep); }
+
+        .card h3 { font-size: 18px; margin-bottom: 8px; }
+        .card p { font-size: 14.5px; color: var(--ink-soft); }
+
+        /* Tour — light, airy walk through the app */
+        .tour { padding: 24px 0 56px; }
+
+        .tour-head { text-align: center; max-width: 620px; margin: 0 auto 40px; }
+        .tour-head .kicker {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--gold-deep);
+            font-weight: 600;
+        }
+        .tour-head h2 { font-size: 34px; letter-spacing: -0.01em; margin: 10px 0 12px; }
+        .tour-head p { color: var(--ink-soft); font-size: 16px; }
+
+        /* Soft "stage" the dark app shots sit on */
+        .stage {
+            background:
+                radial-gradient(70% 90% at 50% 12%, rgba(245, 197, 66, .14), transparent 70%),
+                var(--bg-soft);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+        }
+
+        .showcase {
+            display: flex;
+            justify-content: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 48px 24px 56px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* A nod to Kandinsky: symmetry wrestling asymmetry. Concentric rings (pure
+           symmetry) pushed off-axis; two diagonals crossing behind the panel; a
+           triangle and a rhythmic trail of points. */
+        /* One set of keyframes serves both scenes (see the note above them); the
+           amplitude is a property of the scene rather than of the animation, so
+           it is stated here and damped on the row stages, which keep the volume
+           they had. These are the showcase's: it is the page's lead figure and
+           the one place where the geometry, not the shot, is what is moving.
+           The three are also the field's *hierarchy*, and that is deliberate:
+           the big outlines lead and the small solid shapes follow at a distance.
+           An outline is a thin low-contrast line, so it can travel 20 px and
+           still be scenery; a filled dot is a solid mark the eye tracks like a
+           cursor, and the same 20 px from one of those is an insect crossing the
+           page. So `--swell` and `--swing` (rings, diagonals) are the loud pair
+           and `--drift` (the triangle, the color dots, the trail) is held to
+           about a fifth of their speed — measured, 1.4–1.9 px/s against 4.4–9.1.
+           Raise them together and the scene reads as busier; raise `--drift`
+           alone and it reads as broken. */
+        .deco {
+            position: absolute; pointer-events: none; border-radius: 50%;
+            --swell: 1.10;   /* breathe: peak scale */
+            --swing: 3deg;   /* seesaw: half-angle either side of the standing one */
+            --drift: .5;     /* roam / rise: multiplier on the px amplitudes */
+        }
+        .deco-ring { width: 340px; height: 340px; border: 2px solid rgba(35, 37, 43, .07); top: -96px; right: 72px; animation: breathe 9s ease-in-out infinite; }
+        .deco-ring2 { width: 230px; height: 230px; border: 2px solid rgba(35, 37, 43, .055); top: -41px; right: 127px; animation: breathe 9s ease-in-out -4.5s infinite; }
+        .deco-line, .deco-line2, .deco-line3 { border-radius: 0; height: 2px; }
+        .deco-line {
+            width: 78%;
+            top: 58%;
+            left: 2%;
+            transform: rotate(-14deg);
+            background: linear-gradient(90deg, transparent, rgba(35, 37, 43, .10) 18%, rgba(35, 37, 43, .10) 82%, transparent);
+            animation: seesaw 12s ease-in-out infinite;
+        }
+        /* In the clearing above the submenu, grazing the rings' lower arc. */
+        .deco-line2 { width: 190px; top: 33%; right: 6%; transform: rotate(24deg); background: rgba(245, 197, 66, .40); animation: seesaw 9s ease-in-out -3s infinite; }
+        .deco-line3 { width: 300px; bottom: 17%; left: 12%; transform: rotate(38deg); background: rgba(35, 37, 43, .08); animation: seesaw 13s ease-in-out -8s infinite; }
+        .deco-tri {
+            width: 0; height: 0; border-radius: 0;
+            border-left: 24px solid transparent;
+            border-right: 24px solid transparent;
+            border-bottom: 42px solid rgba(46, 158, 103, .16);
+            left: 5%; bottom: 11%;
+            transform: rotate(-12deg);
+            animation: roam 13s ease-in-out -5s infinite reverse;
+        }
+        /* The solid shapes are the slow half of the hierarchy above — small
+           amplitude *and* long periods, since a short throw at a brisk tempo
+           reads as a twitch rather than a drift. */
+        .deco-dot-y { width: 18px; height: 18px; background: rgba(245, 197, 66, .60); top: 56px; left: 9%; animation: roam 11s ease-in-out infinite; }
+        .deco-dot-g { width: 12px; height: 12px; background: rgba(46, 158, 103, .55); bottom: 110px; right: 13%; animation: roam 15s ease-in-out -6s infinite reverse; }
+        .deco-dot-r { width: 9px; height: 9px; background: rgba(214, 86, 62, .50); top: 92px; right: 5%; animation: roam 12s ease-in-out -3s infinite; }
+        .deco-t1 { width: 9px; height: 9px; background: rgba(35, 37, 43, .18); bottom: 78px; right: 23%; animation: rise 6s ease-in-out infinite; }
+        .deco-t2 { width: 7px; height: 7px; background: rgba(35, 37, 43, .16); bottom: 60px; right: 20%; animation: rise 6s ease-in-out -2s infinite; }
+        .deco-t3 { width: 5px; height: 5px; background: rgba(35, 37, 43, .14); bottom: 44px; right: 17.5%; animation: rise 6s ease-in-out -4s infinite; }
+
+        /* The scenery moves, the app holds still — the inverse of the usual trick,
+           and the point: Pineapple is the calm thing in a day that orbits around
+           it. The rings breathe in counter-phase (one swells as the other eases),
+           the diagonals seesaw about their standing angles, the triangle and the
+           color dots wander small mirrored loops, and the trail ripples upward in
+           sequence. Everything rides the individual translate / rotate / scale
+           properties, composing over the static transforms instead of overwriting
+           them, and no two periods match, so the field never falls into step.
+           The first version of this was half the size and half again as slow, and
+           it read as a still picture. Measured at the quickest instant of a cycle,
+           the big ring's edge moved 2.9 px/s and the color dots 1.8 — near enough
+           to nothing that the scene only admitted to moving if you stopped and
+           stared at one shape, which is the reverse of what background motion is
+           for: it is meant to be caught out of the corner of the eye and never
+           examined. Both halves had to give, since neither on its own gets there —
+           amplitude decides whether a shape has gone anywhere, tempo whether it
+           was seen going. So the amplitudes roughly doubled and the periods came
+           in by about a third — but only for the outlines, per the hierarchy above:
+           the long diagonal's ends now peak at 9.1 px/s and the big ring's edge at
+           6.5, while the solid shapes were left near where they started, 1.4–1.9.
+           The diagonals are the loudest of the three families and the rings sit
+           under them on purpose — a ring swells on both axes at once, so it reads
+           as more movement than the same figure in px spent along one.
+           That is still a drift and not a bounce: the widest excursion in the
+           field is those ends at 31 px, the big ring's edge 17, the dots 5, and
+           ease-in-out throughout means every one of them is at its slowest exactly
+           where it turns around, so nothing ever changes direction sharply. Held to
+           a drift on purpose — this plays behind the reason to install the thing,
+           forever, on the first screen of the page, and it must never become the
+           reason the eye leaves the panel. */
+        @keyframes breathe { 0%, 100% { scale: 1; } 50% { scale: var(--swell); } }
+        @keyframes seesaw { 0%, 50%, 100% { rotate: 0deg; } 25% { rotate: var(--swing); } 75% { rotate: calc(-1 * var(--swing)); } }
+        @keyframes roam {
+            0%, 100% { translate: 0 0; }
+            25% { translate: calc(var(--drift) * 6px) calc(var(--drift) * -6px); }
+            50% { translate: 0 calc(var(--drift) * -10px); }
+            75% { translate: calc(var(--drift) * -6px) calc(var(--drift) * -4px); }
+        }
+        @keyframes rise { 0%, 100% { translate: 0 0; } 50% { translate: 0 calc(var(--drift) * -6px); } }
+
+        /* Shot cascade, tray-true: the submenu escapes up-and-right off the top item —
+           the flip a real tray menu does next to the taskbar (offsets read off a live
+           capture: submenu left = menu right − 7, submenu bottom = menu top + 13 —
+           corner laid on corner, barely layered, never piled). The shots
+           deliberately do not move and stand plumb on both layouts: the
+           looseness of the scene is all in the offsets, and its life is in the
+           deco behind them (see the note above the keyframes). The cluster
+           clears the panel by a sliver of air: only its shadow reaches across,
+           which separates the masses yet keeps them one scene. margin-right
+           offsets the overhang (menu-group: 354 + 312 − 360) so the composition
+           stays visually centered.
+           Everything but the cascade's own left/top is stated as a fraction of
+           the panel — the cluster is 312x294 of its 360x464, and the two shots
+           sit at their fractions of that — so the pair scales off one number,
+           the panel's width, and cannot drift apart when the phone layout
+           shrinks it (see the note in the media query). The 44 above the panel
+           is a margin rather than padding for the same reason: it would
+           otherwise sit inside the box those percentages resolve against.
+           It was 88 while the panel was 420 tall, and it gives back exactly what
+           the key chooser took: the stage is as tall as it always was, 614, so
+           the section did not grow a screenful because one card gained a row.
+           Spending the 44 on air instead read as a stage stretched to fit —
+           and the air was never scarce at that end. It also lands closer to
+           where the eye wants it: 93 above the panel against 57 below is 62 %
+           of the air overhead, where 137/57 was 71 % and already top-heavy.
+           `left` stays in px because the desktop panel is exactly its native
+           360 wide, so px *are* the capture's own units; `top` is the one offset
+           worth reading as a fraction, since 36.638 + the cluster's 63.362 is
+           what says the two stand on the same foot.
+           **Those two are the panel's height, not a shape of their own**: the
+           cluster is 294 native tall whatever the panel does, so both move
+           whenever the panel grows — 30/70 was the pair for a 420-tall panel,
+           and the key chooser made it 464. Left alone they cost the two
+           invariants above at once: the cluster's height is what the shots'
+           own fractions resolve against, so a taller box walks the menu shot
+           down inside it (the foot rose 16.6 px off the panel's) while the
+           submenu, pinned to the box's top, does not follow — and the 13 px
+           the two overlap by opened into a 1.3 px gap. Both measured. So the
+           rule is one line: `height` = 294 / panel height, `top` = the rest. */
+        .shot-group { position: relative; z-index: 1; margin-right: 306px; margin-top: 44px; }
+        .shot-group .app-shot { display: block; }
+        .menu-group { position: absolute; left: 354px; top: 36.638%; width: 86.667%; height: 63.362%; }
+        .menu-group img {
+            position: absolute;
+            filter: drop-shadow(0 16px 28px rgba(35, 37, 43, .28));
+        }
+        .menu-group .menu-shot { left: 0; top: 46.259%; width: 46.474%; }
+        .menu-group .sub-shot { left: 44.231%; top: 0; width: 55.769%; }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 56px;
+            align-items: center;
+            padding: 60px 0;
+        }
+        .row + .row, .states-block + .row { border-top: 1px solid var(--line); }
+
+        .row .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            text-transform: uppercase;
+            letter-spacing: .13em;
+            color: var(--ink-soft);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .row .kicker .dot { width: 9px; height: 9px; margin: 0; }
+
+        .row h3 { font-size: 25px; letter-spacing: -0.01em; margin-bottom: 12px; }
+        .row p { color: var(--ink-soft); font-size: 15.5px; margin-bottom: 12px; }
+        .row p b, .row p strong { color: var(--ink); font-weight: 600; }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+        .chip {
+            font-size: 12.5px;
+            padding: 6px 12px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--ink-soft);
+            background: var(--bg-soft);
+            white-space: nowrap;
+        }
+
+        .media { display: flex; }
+        .media .stage {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 48px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* **Every screenshot on this page is exactly 2× the size it is shown at,
+           and that is a rule, not a coincidence.** A UI capture is crisp only when
+           the renderer can halve it — it keeps a chain of half-size mips, and 1:2
+           is the one downscale that comes out of that chain untouched; ask for any
+           other size and it resamples the nearest mip, which softens the whole
+           image and makes 1 px hairlines and small saturated marks crawl.
+           Three of the six tour shots were off it and were resampled to fit
+           (`presets.png` 720→660, `install.png` 920→744, `update.png` 840→680 —
+           the ratios were 2.18, 2.47, 2.47). It showed: the presets shot was
+           visibly mushier than the Power Mode one beside it, which had always been
+           a clean 2.00. So when a shot is added or re-captured, check
+           `naturalWidth / getBoundingClientRect().width` in the console — it must
+           read 2 on both axes, and the `width`/`height` attributes must be exactly
+           half the file, or `height: auto` puts the real height a fraction off and
+           the vertical axis alone goes soft.
+           **The ratio is necessary and not sufficient**, which is the half the
+           first fix got wrong: those three were brought to 2.00 by resampling the
+           *files* down, and a file made that way carries the softness in its own
+           pixels, where the ratio can no longer see it. `presets.png` read a clean
+           2.00 at 660/330 and was still the mushiest shot on the page — its 1 px
+           hairlines had been rasterized at 1.83 and were three pixels wide. It is
+           now the panel's own 720 shown at 360, rendered at that scale rather than
+           reduced to it, and its borders are 2 px of one colour. So the second
+           question, after the ratio, is where the file's pixels came from: a shot
+           is only as crisp as the scale it was *rendered* at. `install.png` and
+           `update.png` are still baked reductions and are the two left to redo.
+           `top: 0` is stated so the hover has something to transition *from* —
+           a transition out of `auto` does not run. */
+        .media img { transition: top .24s cubic-bezier(.22, .61, .36, 1), filter .24s ease; position: relative; top: 0; z-index: 1; }
+        .shot-menu { filter: drop-shadow(0 16px 28px rgba(35, 37, 43, .28)); }
+
+        /* Hover lifts the shot 4 px and deepens its shadow, with the stage's own
+           glow coming up behind it. One gesture, the same on all six rows, and
+           the page already speaks it: the feature cards and the state tiles below
+           lift 3 px on hover. A little more here because those are bordered boxes
+           an eye can measure a move against, while a shot floats in the middle of
+           a large pale stage with nothing to compare it to.
+           **It moves through `top`, not `transform`, and that is the whole reason
+           this hover is watchable.** Both land the same 4 px, but the frames in
+           between differ: a relative offset is applied at paint time and Blink
+           pixel-snaps an image's destination rect, so *every* frame lands on a
+           whole pixel, while a transform is composited and honours the fractional
+           value it is given. Measured on `presets.png`'s gold slider at 8×, held
+           at −1.37 px: through `top` it is indistinguishable from the resting
+           frame, through `transform` the bar smears into a gradient and the
+           thumb's edge goes to mush. Under a *transition* that fractional value is
+           a different one every frame, so the saturated yellow elements crawl —
+           reported as "рябят жёлтые элементы" against the transform version. A
+           relative offset costs no layout (it is applied after it) and the drop
+           shadow is the same bitmap moved, so the paint is cheap.
+           Depth alone was tried first and did not carry: shadow 16/28 → 24/38 plus
+           the glow, no movement at all, which measured fine and read as almost
+           nothing on a pale stage where the shadow is faint to begin with. The
+           shadow is still here — it is what a lift is made of — but it is now the
+           second voice rather than the whole of it.
+           Two earlier versions moved the shot differently and both were dropped.
+           First a directional nudge per stage, each measured to take its shot
+           *off* the deco it stood on: correct, and it read as a page that fidgets,
+           six shots sliding six ways. Then one uniform 3 % scale, which fixed that
+           and visibly softened every shot it touched. The lift keeps the one thing
+           the directions were for — the shot leaves its deco — and spends it in
+           the one direction that needs no explaining.
+           Why the scale cannot be rescued, since it will be proposed again: the
+           captures are 2× (`card-awake.png` is 580 px wide, shown at 290), and
+           they are crisp *because* that is exactly 1:2 — the renderer picks the
+           580-wide image's half-size mip and draws it pixel for pixel. Ask for
+           any other size and it must resample. At 1.03 it upsamples that same
+           290-wide mip by 3 %, and the sampling phase drifts a full pixel across
+           the width, so most of the image lands on a half-and-half blend of
+           neighbouring pixels — which is also why a *smaller* zoom does not soften
+           less, the phase still sweeps the whole range. Measured on a bench of one
+           word rendered seven ways at 8× magnification: `image-rendering:
+           high-quality`, `-webkit-optimize-contrast`, dropping the `drop-shadow`
+           (a filter forcing an unscaled render surface was the plausible culprit —
+           it isn't), animating `width` instead of `transform`, and
+           `will-change: transform` all came out equally soft against the 1:2
+           reference. There is one crisp size and the resting one already has it.
+           A move costs nothing by comparison — position is free, size is not.
+           All three run 240 ms on an ease-out curve: quick enough to answer the
+           pointer, and eased out so the shot settles into place rather than
+           stopping dead.
+           The trigger is the stage, not the image, as it was for the two versions
+           before this: a shot that slid out from under the pointer would unhover
+           itself and chatter at the edges, the glow belongs to the stage anyway,
+           and a whole-panel hover is what the cards and the tiles below do. */
+        .media .stage:hover .shot-menu {
+            top: -4px;
+            filter: drop-shadow(0 24px 38px rgba(35, 37, 43, .34));
+        }
+        /* The glow is a second copy of the stage's own gradient, faded in over it,
+           because `background-image` does not interpolate — transitioning the
+           alpha of the real one would snap. No `z-index`: as the first child in
+           DOM order it paints under the deco and under the shot, which is where a
+           light behind the scene belongs. */
+        .media .stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(70% 90% at 50% 12%, rgba(245, 197, 66, .10), transparent 70%);
+            opacity: 0;
+            transition: opacity .24s ease;
+            pointer-events: none;
+        }
+        .media .stage:hover::before { opacity: 1; }
+
+        /* The row stages keep a murmur of the showcase geometry: one arc, one
+           line, one point per stage — the same family at a third of the voices
+           and lower volume, so the shot stays the loudest thing on its stage.
+           Three constellations cycle down the tour (a, b, c, a, b, c); with the
+           rows alternating sides, a repeat never lands on a neighbor. Rings pin
+           to corners with fixed offsets (an arc reads the same on any stage
+           height); dots and lines sit on percentages so both layouts share
+           them. The amplitudes stay where they were when the showcase's were
+           raised: there the moving geometry *is* the exhibit, while here it is
+           the ground a shot stands on, and six stages drifting as widely as one
+           lead figure is a page that never settles. The long periods below say
+           the same thing about tempo. */
+        .media .deco { --swell: 1.06; --swing: 1.6deg; --drift: .3; }
+        .geo-ring { border: 2px solid rgba(35, 37, 43, .06); }
+        .geo-line { border-radius: 0; height: 2px; }
+        .geo-a .geo-ring { width: 150px; height: 150px; top: -64px; right: -44px; animation: breathe 15s ease-in-out infinite; }
+        .geo-a .geo-line { width: 130px; bottom: 13%; left: -34px; transform: rotate(-18deg); background: rgba(35, 37, 43, .07); animation: seesaw 18s ease-in-out -7s infinite; }
+        .geo-a .geo-dot { width: 10px; height: 10px; background: rgba(46, 158, 103, .35); bottom: 14px; left: 7%; animation: roam 16s ease-in-out -5s infinite; }
+        .geo-b .geo-ring { width: 170px; height: 170px; left: -84px; bottom: -70px; animation: breathe 17s ease-in-out -8s infinite; }
+        .geo-b .geo-line { width: 120px; top: 16%; right: -30px; transform: rotate(24deg); background: rgba(245, 197, 66, .28); animation: seesaw 15s ease-in-out -3s infinite; }
+        .geo-b .geo-dot { width: 8px; height: 8px; background: rgba(214, 86, 62, .32); top: 14%; left: 6%; animation: roam 14s ease-in-out -9s infinite reverse; }
+        .geo-c .geo-ring { width: 140px; height: 140px; right: -56px; bottom: -60px; animation: breathe 16s ease-in-out -4s infinite; }
+        .geo-c .geo-line { width: 130px; top: 18%; left: -30px; transform: rotate(-24deg); background: rgba(35, 37, 43, .07); animation: seesaw 19s ease-in-out -11s infinite; }
+        .geo-c .geo-dot { width: 12px; height: 12px; background: rgba(245, 197, 66, .38); top: 12%; right: 9%; animation: roam 15s ease-in-out -6s infinite; }
+
+        .row.flip .row-text { order: 2; }
+        .row.flip .media { order: 1; }
+
+        /* Tray icon states */
+        .states-block { padding: 60px 0; border-top: 1px solid var(--line); text-align: center; }
+        .states-block h3 { font-size: 25px; margin-bottom: 28px; }
+        .states-block > p { color: var(--ink-soft); font-size: 15.5px; max-width: 44em; margin: 0 auto 40px; }
+        .states-block > p b { color: var(--ink); font-weight: 600; }
+
+        .states { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 24px; }
+        .state {
+            background: var(--bg-soft);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 20px 14px 18px;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .state:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(35, 37, 43, .07); }
+        .state img { width: 38px; height: 38px; }
+        .state b { display: block; font-size: 14px; margin: 10px 0 4px; }
+        .state span { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; display: block; }
+
+        /* Reveal on scroll */
+        .reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s ease, transform .6s ease; }
+        .reveal.in { opacity: 1; transform: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .reveal.in { opacity: 1; transform: none; transition: none; }
+            /* Only the lift is dropped. The shadow and the glow stay and go on
+               fading: this setting is about motion, and a change of depth is not
+               motion — take those out too and the hover would answer with
+               nothing at all. */
+            .media .stage:hover .shot-menu { top: 0; }
+            .deco { animation: none; }
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 28px 0 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--ink-soft);
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        footer a { color: var(--ink-soft); text-decoration: none; }
+        footer a:hover { color: var(--ink); }
+        .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
+
+        @media (max-width: 860px) {
+            .hero { grid-template-columns: 1fr; gap: 24px; padding: 40px 0 56px; }
+            .hero h1 { font-size: 40px; }
+            .hero-art { order: -1; }
+            .hero-art .disc { width: 220px; height: 220px; }
+            .hero-art img { width: 150px; height: 150px; }
+            .grid { grid-template-columns: 1fr; }
+
+            .tour-head h2 { font-size: 28px; }
+            .showcase { padding: 36px 20px 44px; }
+            /* A trimmed set of the desktop geometry, retuned to the narrow stage
+               (only the long diagonal is dropped — everything else is repositioned):
+               one ring arcs in from the top corner while the other swells out of
+               the left flank below the panel, where the two diagonals converge on
+               the cluster; the trail climbs toward a green full stop and a smaller
+               triangle anchors the opposite end of the apron — the desktop's
+               triangle-and-dot pairing, mirrored. The panel fills the width, so
+               everything lives in the strip above it, that flank, and the apron. */
+            .deco-line { display: none; }
+            .deco-ring { width: 240px; height: 240px; left: -130px; right: auto; top: 46%; }
+            .deco-ring2 { width: 200px; height: 200px; top: -70px; right: -58px; }
+            .deco-dot-y { width: 14px; height: 14px; top: 18px; left: 6%; }
+            /* 16 rather than the 8 it was placed at: this is the shape closest to
+               an edge on either layout, and at `--drift: 1` — where the showcase
+               briefly sat — roam's 10 px lift had the stage's `overflow: hidden`
+               shaving 1 px off it once a cycle. The drift is half that now and 8
+               would clear it by 3 px, which is nobody's margin; 16 leaves 12. */
+            .deco-dot-r { top: 16px; right: 22%; }
+            .deco-line2 { width: 130px; bottom: 92px; left: -30px; right: auto; top: auto; }
+            .deco-line3 { width: 150px; bottom: 150px; left: -36px; }
+            .deco-tri {
+                border-left-width: 16px; border-right-width: 16px; border-bottom-width: 28px;
+                left: auto; right: 5%; bottom: 12px;
+            }
+            .deco-t1 { bottom: 24px; left: 6%; right: auto; }
+            .deco-t2 { bottom: 38px; left: 11%; right: auto; }
+            .deco-t3 { bottom: 50px; left: 16%; right: auto; }
+            .deco-dot-g { bottom: 60px; left: 21%; right: auto; }
+            /* The cascade reflows from the panel's right flank to under its foot,
+               and that is the *only* thing this block says about the pair: the
+               panel's width is the one number, the cluster hangs off it in
+               percentages, so the pose survives being scaled. Both earlier
+               versions moved one shot and not the other. Glued to the right edge
+               (scale(.82) against a panel that tracked the viewport) the submenu
+               sat 7 px off the stage border with 77 px of air on the left; and
+               below ~400 px that fixed .82 made the menu *wider* than the panel
+               it hangs off. Centering the cascade alone under the panel then
+               bought the air back by walking it left across the Press key card,
+               covering the end of "≈6 pauses of ~14 min per 9 h".
+               So the composition moves as one and is sized to leave air on both
+               sides: it is 384 native px wide (the submenu overhangs the panel's
+               right edge by 24, which is what keeps it clear of that text), so
+               the panel takes 360/384 of what is left once the air is deducted.
+               100%, not a vw guess: the flex container's content box is the real
+               room, so nothing overflows into the clipped edges. */
+            .shot-group {
+                --panel: min(300px, (100% - 32px) * .9375);
+                width: var(--panel);
+                margin-top: 0;
+                /* Half the overhang, so the flex centering splits the air
+                   unevenly: the panel's full-height left edge asks for more of
+                   it than the submenu's short right edge, which is also why the
+                   cluster is allowed to hang past the panel in the first place.
+                   Compensating the whole 24 would center the bounding box and
+                   read as the big shot sitting too far left. */
+                margin-right: calc(var(--panel) / 30);
+                /* what the cascade hangs below the panel's own box: 670 − 464
+                   native, so its bottom edge lands on the stage's inner floor
+                   and the deco keeps its apron. The overhang is the constant
+                   here and `top` follows it, which is why that number moves
+                   with the panel's height while this one does not. */
+                margin-bottom: calc(var(--panel) * 206 / 360);
+            }
+            .menu-group { left: 20%; top: 81.034%; }
+            .row { grid-template-columns: 1fr; gap: 28px; padding: 44px 0; }
+            .row.flip .row-text { order: 1; }
+            .row.flip .media { order: 2; }
+            .media .stage { padding: 36px 18px; }
+            .states { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div class="brand">
+                <img src="pineapple.png" alt="Pineapple logo" />
+                <span>Pineapple</span>
+            </div>
+            <a class="nav-cta" href="downloads/Pineapple-1.0.1-b0c8ee2.zip">Download</a>
+        </header>
+
+        <section class="hero">
+            <div>
+                <h1>Stay awake.<br />Look <span class="accent">active</span>.</h1>
+                <p class="lead">
+                    A tiny Windows tray utility that keeps your machine from sleeping, mimics natural
+                    activity so your status keeps a human rhythm, and switches Windows Power Mode — all
+                    from one icon.
+                </p>
+                <div class="actions">
+                    <a class="download" href="downloads/Pineapple-1.0.1-b0c8ee2.zip">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" />
+                        </svg>
+                        Download for Windows
+                    </a>
+                    <div class="meta">
+                        <b>v1.0.1</b> · Windows 10/11 (x64) · free<br />
+                        Requires the <a href="https://dotnet.microsoft.com/download/dotnet/10.0" target="_blank" rel="noopener">.NET&nbsp;10 Desktop Runtime</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-art">
+                <div class="disc"><img src="pineapple.png" alt="Pineapple" /></div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Three things, no clutter</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="dot g"></div>
+                    <h3>Stay awake</h3>
+                    <p>Blocks display and system sleep for as long as you want, with an optional
+                       “switch off at” time so it never runs overnight.</p>
+                </div>
+                <div class="card">
+                    <div class="dot y"></div>
+                    <h3>Press key</h3>
+                    <p>Presses a harmless key at human-like intervals inside your working hours.
+                       A workload slider tunes how often it quietly rests and slips to “away”.</p>
+                </div>
+                <div class="card">
+                    <div class="dot p"></div>
+                    <h3>Power Mode</h3>
+                    <p>Flip between best efficiency, balanced and best performance for the active
+                       power source — no admin rights, no registry edits.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="tour">
+            <div class="tour-head reveal">
+                <div class="kicker">A closer look</div>
+                <h2>Small panel, honest work</h2>
+                <p>Everything lives in one dark panel and a right-click menu, and the whole
+                   panel fits in a preset. Here is what each piece actually does.</p>
+            </div>
+
+            <div class="stage showcase reveal">
+                <span class="deco deco-ring"></span>
+                <span class="deco deco-ring2"></span>
+                <span class="deco deco-line"></span>
+                <span class="deco deco-line2"></span>
+                <span class="deco deco-line3"></span>
+                <span class="deco deco-tri"></span>
+                <span class="deco deco-dot-y"></span>
+                <span class="deco deco-dot-g"></span>
+                <span class="deco deco-dot-r"></span>
+                <span class="deco deco-t1"></span>
+                <span class="deco deco-t2"></span>
+                <span class="deco deco-t3"></span>
+                <div class="shot-group">
+                    <img class="app-shot" src="screenshots/settings.png" width="360" height="464"
+                         alt="Pineapple settings panel: activity state, preset selector, Stay awake with an off-at time, Press key with a daily window, a key to press and a workload slider" />
+                    <div class="menu-group">
+                        <img class="menu-shot" src="screenshots/tray-menu.png" width="145" height="158" loading="lazy"
+                             alt="Pineapple tray menu" />
+                        <img class="sub-shot" src="screenshots/tray-submenu.png" width="174" height="149" loading="lazy"
+                             alt="Power Mode submenu: plugged in (AC), Balanced checked" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="row-text reveal">
+                    <div class="kicker"><span class="dot g"></span>Stay awake</div>
+                    <h3>Sleep becomes opt-in</h3>
+                    <p>One checkbox tells Windows the machine is in use: the display stays on and the
+                       system never dozes off mid-download or mid-build. No mouse-jiggling gadgets,
+                       no admin rights — just the official “I’m busy” signal.</p>
+                    <p>Set an <b>Off at</b> time and Pineapple stands down on its own in the evening
+                       — the PC goes back to sleeping normally even if you forgot about it.</p>
+                    <div class="chips">
+                        <span class="chip">Display + system sleep</span>
+                        <span class="chip">Daily auto-off</span>
+                        <span class="chip">No admin rights</span>
+                    </div>
+                </div>
+                <div class="media reveal">
+                    <div class="stage geo-a">
+                        <span class="deco geo-ring"></span>
+                        <span class="deco geo-line"></span>
+                        <span class="deco geo-dot"></span>
+                        <img class="shot-menu" src="screenshots/card-awake.png" width="290" height="81" loading="lazy"
+                             alt="Stay awake card: enabled, off at 18:30, status “On until 18:30”" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row flip">
+                <div class="row-text reveal">
+                    <div class="kicker"><span class="dot y"></span>Press key</div>
+                    <h3>Presence with a human rhythm</h3>
+                    <p>Inside your working hours Pineapple taps <b>F23</b> every 30–90 seconds — a key
+                       absent from every keyboard, so nothing reacts to it, and enough to keep chat
+                       status green. Pick a different one if you like. The <b>workload slider</b>
+                       decides how believable the day looks: lower it and real pauses are scheduled,
+                       long enough to genuinely show “away”, so your status breathes instead of
+                       glowing green for nine hours straight.</p>
+                    <p>The plan is spelled out in plain words — <b>“≈6 pauses of ~14 min per 9 h”</b> —
+                       and the status line speaks Teams: <b>“Active · Away 14:20–14:36”</b>.</p>
+                    <div class="chips">
+                        <span class="chip">Working-hours window</span>
+                        <span class="chip">Can span midnight</span>
+                        <span class="chip">100 % = no pauses</span>
+                        <span class="chip">Your choice of key</span>
+                    </div>
+                </div>
+                <div class="media reveal">
+                    <div class="stage geo-b">
+                        <span class="deco geo-ring"></span>
+                        <span class="deco geo-line"></span>
+                        <span class="deco geo-dot"></span>
+                        <img class="shot-menu" src="screenshots/card-keys.png" width="290" height="176" loading="lazy"
+                             alt="Press key card: daily window 09:00–18:00, key set to F23, workload slider at 65 %, plan and Teams-style status" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="row-text reveal">
+                    <div class="kicker"><span class="dot p"></span>Power Mode</div>
+                    <h3>The buried Windows switch, unburied</h3>
+                    <p>Best power efficiency, Balanced or Best performance — the same Power Mode
+                       you’d dig out of Windows Settings, now one right-click away. Pineapple always
+                       switches it for whatever feeds the machine <b>right now</b>, mains or battery.</p>
+                    <p>No admin rights, no registry tricks — and if a machine only honors one mode,
+                       the submenu simply hides itself.</p>
+                    <div class="chips">
+                        <span class="chip">AC / battery aware</span>
+                        <span class="chip">Efficiency · Balanced · Performance</span>
+                    </div>
+                </div>
+                <div class="media reveal">
+                    <div class="stage geo-c">
+                        <span class="deco geo-ring"></span>
+                        <span class="deco geo-line"></span>
+                        <span class="deco geo-dot"></span>
+                        <img class="shot-menu" src="screenshots/tray-menu-cascade.png" width="306" height="158" loading="lazy"
+                             alt="Tray menu with the Power Mode submenu open: plugged in (AC), Balanced checked" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row flip">
+                <div class="row-text reveal">
+                    <div class="kicker"><span class="dot o"></span>Presets</div>
+                    <h3>The whole panel, saved by name</h3>
+                    <p>The same settings rarely fit <b>working from home</b>, a day at <b>the
+                       office</b> and an <b>overnight</b> download. Don’t refit them each time —
+                       save each setup as a preset, named after the day it serves.</p>
+                    <p>From then on it’s one pick in the drop-down: the whole panel — hours,
+                       workload, off time — changes at once, and the new plan starts on the spot.</p>
+                    <div class="chips">
+                        <span class="chip">One name, every setting</span>
+                        <span class="chip">Applies instantly</span>
+                        <span class="chip">Drag to reorder</span>
+                    </div>
+                </div>
+                <div class="media reveal">
+                    <div class="stage geo-a">
+                        <span class="deco geo-ring"></span>
+                        <span class="deco geo-line"></span>
+                        <span class="deco geo-dot"></span>
+                        <img class="shot-menu" src="screenshots/presets.png" width="360" height="464" loading="lazy"
+                             alt="Settings panel with the preset drop-down open: Default, Work from home, Overnight — Work from home selected" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="states-block">
+                <div class="reveal">
+                    <h3>The icon is the dashboard</h3>
+                    <p>One glance at the tray tells you the mode — and a <b>double-click</b> steps to
+                       the next one, so the daily on/off never needs a menu.</p>
+                </div>
+                <div class="states">
+                    <div class="state reveal">
+                        <img src="screenshots/icon-off.png" alt="Red pineapple tray icon" loading="lazy" />
+                        <b>Off</b>
+                        <span>Everything idle — Windows behaves as usual.</span>
+                    </div>
+                    <div class="state reveal">
+                        <img src="screenshots/icon-awake.png" alt="Yellow pineapple tray icon" loading="lazy" />
+                        <b>Awake</b>
+                        <span>Screen stays on; the keyboard stays quiet.</span>
+                    </div>
+                    <div class="state reveal">
+                        <img src="screenshots/icon-active.png" alt="Green pineapple tray icon" loading="lazy" />
+                        <b>Active</b>
+                        <span>Awake and pressing keys — fully present.</span>
+                    </div>
+                    <div class="state reveal">
+                        <img src="screenshots/icon-resting.png" alt="Green-yellow pineapple tray icon" loading="lazy" />
+                        <b>Away</b>
+                        <span>A scheduled pause — status shows “away”.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="row-text reveal">
+                    <div class="kicker"><span class="dot g"></span>First run</div>
+                    <h3>The app is its own installer</h3>
+                    <p>There’s no setup wizard — the exe itself is the installer. Run it, and until
+                       it’s installed it offers a folder of its own to live in. One press on
+                       <b>Install</b>, done.</p>
+                    <p>Prefer it portable? Untick the offer, and Pineapple runs from where it is —
+                       no more questions.</p>
+                    <div class="chips">
+                        <span class="chip">Asks, never insists</span>
+                        <span class="chip">One copy at a time</span>
+                        <span class="chip">No admin prompt</span>
+                    </div>
+                </div>
+                <div class="media reveal">
+                    <div class="stage geo-b">
+                        <span class="deco geo-ring"></span>
+                        <span class="deco geo-line"></span>
+                        <span class="deco geo-dot"></span>
+                        <img class="shot-menu" src="screenshots/install.png" width="372" height="295" loading="lazy"
+                             alt="Install dialog: Pineapple is running from your Downloads folder, an Install to field suggesting a folder of its own, an Offer to install checkbox, and Run without installing and Install buttons" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row flip">
+                <div class="row-text reveal">
+                    <div class="kicker"><span class="dot y"></span>Low maintenance</div>
+                    <h3>Takes care of itself</h3>
+                    <p>Pineapple starts with Windows (your choice), keeps its settings across updates,
+                       and checks the site for new versions. When one appears, it shows what changed,
+                       then downloads, verifies, swaps itself and restarts — <b>one click</b>, done.</p>
+                    <div class="chips">
+                        <span class="chip">Start with Windows</span>
+                        <span class="chip">One-click updates</span>
+                        <span class="chip">Under 1 MB download</span>
+                    </div>
+                </div>
+                <div class="media reveal">
+                    <div class="stage geo-c">
+                        <span class="deco geo-ring"></span>
+                        <span class="deco geo-line"></span>
+                        <span class="deco geo-dot"></span>
+                        <img class="shot-menu" src="screenshots/update.png" width="340" height="284" loading="lazy"
+                             alt="Update dialog: Pineapple 1.0.0 is available, release notes and a Download &amp; install button" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <span>© 2026 · Freeware, provided as is</span>
+            <span class="footer-links">
+                <a href="license.html">License</a>
+                <a href="privacy.html">Privacy</a>
+                <a class="mail mail-text" data-u="support" data-h="getpineapple.app">support [at] getpineapple [dot] app</a>
+                <a href="downloads/Pineapple-1.0.1-b0c8ee2.zip">Download v1.0.1</a>
+            </span>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            var items = document.querySelectorAll(".reveal");
+            if (reduce || !("IntersectionObserver" in window)) {
+                items.forEach(function (el) { el.classList.add("in"); });
+                return;
+            }
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("in");
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+            items.forEach(function (el) { io.observe(el); });
+        })();
+    </script>
+    <script>
+        (function () {
+            function addr(el) { return el.dataset.u + "@" + el.dataset.h; }
+            document.querySelectorAll("a.mail").forEach(function (a) {
+                a.setAttribute("href", "mailto:" + addr(a));
+            });
+            document.querySelectorAll(".mail-text").forEach(function (el) {
+                el.textContent = addr(el);
+            });
+        })();
+    </script>
+</body>
+</html>
